@@ -2,14 +2,14 @@
   "artworks": [
     {
       "id": 1,
-      "title": "Abstract Composition",
-      "artist": "Modern Artist",
+      "title": "Modern Abstract",
+      "artist": "Contemporary Artist",
       "width": 24,
       "height": 18,
       "frame_width": 2,
-      "color": "#FF6B6B",
+      "image_path": "art/Art/modern.png",
       "style": "Abstract",
-      "price": 150
+      "price": 350
     },
     {
       "id": 2,
@@ -18,75 +18,31 @@
       "width": 30,
       "height": 20,
       "frame_width": 3,
-      "color": "#4ECDC4",
+      "image_path": "art/Art/landscape.png",
       "style": "Landscape",
-      "price": 200
+      "price": 450
     },
     {
       "id": 3,
-      "title": "City Skyline",
-      "artist": "Urban Artist",
+      "title": "Geometric Patterns",
+      "artist": "Pattern Designer",
       "width": 20,
-      "height": 16,
+      "height": 20,
       "frame_width": 2,
-      "color": "#45B7D1",
-      "style": "Urban",
-      "price": 120
+      "image_path": "art/Art/geometric.png",
+      "style": "Geometric",
+      "price": 300
     },
     {
       "id": 4,
-      "title": "Floral Bouquet",
-      "artist": "Botanical Artist",
-      "width": 16,
-      "height": 20,
-      "frame_width": 2,
-      "color": "#F7DC6F",
-      "style": "Botanical",
-      "price": 100
-    },
-    {
-      "id": 5,
-      "title": "Geometric Patterns",
-      "artist": "Pattern Designer",
+      "title": "Fresh Fruit Still Life",
+      "artist": "Still Life Artist",
       "width": 18,
       "height": 24,
-      "frame_width": 1,
-      "color": "#BB8FCE",
-      "style": "Geometric",
-      "price": 90
-    },
-    {
-      "id": 6,
-      "title": "Ocean Waves",
-      "artist": "Marine Artist",
-      "width": 36,
-      "height": 24,
-      "frame_width": 3,
-      "color": "#5DADE2",
-      "style": "Seascape",
-      "price": 250
-    },
-    {
-      "id": 7,
-      "title": "Portrait Study",
-      "artist": "Portrait Artist",
-      "width": 16,
-      "height": 20,
       "frame_width": 2,
-      "color": "#F8C471",
-      "style": "Portrait",
-      "price": 180
-    },
-    {
-      "id": 8,
-      "title": "Still Life",
-      "artist": "Classical Artist",
-      "width": 20,
-      "height": 16,
-      "frame_width": 3,
-      "color": "#85C1E9",
+      "image_path": "art/Art/fruit.png",
       "style": "Still Life",
-      "price": 140
+      "price": 280
     }
   ],
   "gallery_designs": []
