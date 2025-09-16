@@ -1,0 +1,49 @@
+{
+  "artworks": [
+    {
+      "id": 1,
+      "title": "Modern Abstract",
+      "artist": "Contemporary Artist",
+      "width": 24,
+      "height": 18,
+      "frame_width": 2,
+      "image_path": "art/Art/modern.png",
+      "style": "Abstract",
+      "price": 350
+    },
+    {
+      "id": 2,
+      "title": "Mountain Landscape",
+      "artist": "Nature Painter",
+      "width": 30,
+      "height": 20,
+      "frame_width": 3,
+      "image_path": "art/Art/landscape.png",
+      "style": "Landscape",
+      "price": 450
+    },
+    {
+      "id": 3,
+      "title": "Geometric Patterns",
+      "artist": "Pattern Designer",
+      "width": 20,
+      "height": 20,
+      "frame_width": 2,
+      "image_path": "art/Art/geometric.png",
+      "style": "Geometric",
+      "price": 300
+    },
+    {
+      "id": 4,
+      "title": "Fresh Fruit Still Life",
+      "artist": "Still Life Artist",
+      "width": 18,
+      "height": 24,
+      "frame_width": 2,
+      "image_path": "art/Art/fruit.png",
+      "style": "Still Life",
+      "price": 280
+    }
+  ],
+  "gallery_designs": []
+}
