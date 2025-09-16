@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery Wall Designer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f0;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .art-panel {
+            width: 300px;
+            background: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .art-panel h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        .art-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .art-item {
+            width: 120px;
+            height: 120px;
+            cursor: grab;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .art-item:hover {
+            transform: scale(1.05);
+        }
+
+        .art-item:active {
+            cursor: grabbing;
+        }
+
+        .wall {
+            flex: 1;
+            background: #f8f6f0;
+            position: relative;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(0,0,0,0.02) 1px, transparent 0);
+            background-size: 20px 20px;
+        }
+
+        .placed-art {
+            position: absolute;
+            cursor: move;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            transition: border-color 0.2s ease;
+        }
+
+        .placed-art:hover {
+            border-color: #007bff;
+        }
+
+        .placed-art.selected {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+        }
+
+        .control-handles {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+        }
+
+        .resize-handle, .rotate-handle, .delete-handle {
+            width: 16px;
+            height: 16px;
+            background: #007bff;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            position: absolute;
+            display: none;
+        }
+
+        .resize-handle {
+            cursor: se-resize;
+            top: 0;
+            right: 0;
+        }
+
+        .rotate-handle {
+            cursor: grab;
+            top: 0;
+            right: 20px;
+            background: #28a745;
+        }
+
+        .delete-handle {
+            cursor: pointer;
+            top: 0;
+            right: 40px;
+            background: #dc3545;
+        }
+
+        .placed-art.selected .resize-handle,
+        .placed-art.selected .rotate-handle,
+        .placed-art.selected .delete-handle {
+            display: block;
+        }
+
+        .alignment-guide {
+            position: absolute;
+            background: #007bff;
+            pointer-events: none;
+            opacity: 0.7;
+            z-index: 1000;
+        }
+
+        .alignment-guide.vertical {
+            width: 1px;
+            height: 100%;
+        }
+
+        .alignment-guide.horizontal {
+            width: 100%;
+            height: 1px;
+        }
+
+        .art-painting-1 {
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+        }
+
+        .art-painting-2 {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+        }
+
+        .art-painting-3 {
+            background: linear-gradient(45deg, #96ceb4, #feca57);
+        }
+
+        .art-photo-1 {
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23e0e0e0" width="100" height="100"/><rect fill="%23333" x="20" y="20" width="60" height="60"/></svg>');
+            background-size: cover;
+        }
+
+        .art-photo-2 {
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23f0f0f0" width="100" height="100"/><circle fill="%23666" cx="50" cy="50" r="30"/></svg>');
+            background-size: cover;
+        }
+
+        .art-abstract-1 {
+            background: linear-gradient(0deg, #667eea, #764ba2);
+        }
+
+        .art-abstract-2 {
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+        }
+
+        .art-poster-1 {
+            background: linear-gradient(180deg, #3b4371, #f3904f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .art-poster-2 {
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="art-panel">
+            <h2>Art Collection</h2>
+            <div class="art-grid">
+                <div class="art-item art-painting-1" data-type="painting"></div>
+                <div class="art-item art-painting-2" data-type="painting"></div>
+                <div class="art-item art-painting-3" data-type="painting"></div>
+                <div class="art-item art-photo-1" data-type="photo"></div>
+                <div class="art-item art-photo-2" data-type="photo"></div>
+                <div class="art-item art-abstract-1" data-type="abstract"></div>
+                <div class="art-item art-abstract-2" data-type="abstract"></div>
+                <div class="art-item art-poster-1" data-type="poster">POSTER</div>
+                <div class="art-item art-poster-2" data-type="poster">ART</div>
+            </div>
+        </div>
+        <div class="wall" id="wall"></div>
+    </div>
+
+    <script>
+        class GalleryWallDesigner {
+            constructor() {
+                this.wall = document.getElementById('wall');
+                this.selectedArt = null;
+                this.isDragging = false;
+                this.isResizing = false;
+                this.isRotating = false;
+                this.dragOffset = { x: 0, y: 0 };
+                this.alignmentGuides = [];
+                this.placedArt = [];
+
+                this.init();
+            }
+
+            init() {
+                this.setupDragAndDrop();
+                this.setupWallInteraction();
+                this.setupKeyboardShortcuts();
+            }
+
+            setupDragAndDrop() {
+                const artItems = document.querySelectorAll('.art-item');
+
+                artItems.forEach(item => {
+                    item.addEventListener('dragstart', (e) => {
+                        e.preventDefault();
+                    });
+
+                    item.addEventListener('mousedown', (e) => {
+                        this.startDragging(e, item);
+                    });
+                });
+            }
+
+            startDragging(e, sourceItem) {
+                const rect = sourceItem.getBoundingClientRect();
+                const wallRect = this.wall.getBoundingClientRect();
+
+                const clone = sourceItem.cloneNode(true);
+                clone.classList.add('placed-art');
+                clone.style.width = '150px';
+                clone.style.height = '150px';
+                clone.style.left = (e.clientX - wallRect.left - 75) + 'px';
+                clone.style.top = (e.clientY - wallRect.top - 75) + 'px';
+                clone.style.transform = 'rotate(0deg)';
+                clone.dataset.rotation = '0';
+
+                this.addControlHandles(clone);
+                this.wall.appendChild(clone);
+                this.placedArt.push(clone);
+
+                this.selectArt(clone);
+                this.isDragging = true;
+                this.dragOffset = { x: 75, y: 75 };
+
+                document.addEventListener('mousemove', this.handleDragMove.bind(this));
+                document.addEventListener('mouseup', this.handleDragEnd.bind(this));
+            }
+
+            addControlHandles(artElement) {
+                const controlsDiv = document.createElement('div');
+                controlsDiv.className = 'control-handles';
+
+                const resizeHandle = document.createElement('div');
+                resizeHandle.className = 'resize-handle';
+                resizeHandle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    this.startResizing(e, artElement);
+                });
+
+                const rotateHandle = document.createElement('div');
+                rotateHandle.className = 'rotate-handle';
+                rotateHandle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    this.startRotating(e, artElement);
+                });
+
+                const deleteHandle = document.createElement('div');
+                deleteHandle.className = 'delete-handle';
+                deleteHandle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.deleteArt(artElement);
+                });
+
+                controlsDiv.appendChild(resizeHandle);
+                controlsDiv.appendChild(rotateHandle);
+                controlsDiv.appendChild(deleteHandle);
+                artElement.appendChild(controlsDiv);
+            }
+
+            handleDragMove(e) {
+                if (!this.isDragging || !this.selectedArt) return;
+
+                const wallRect = this.wall.getBoundingClientRect();
+                const x = e.clientX - wallRect.left - this.dragOffset.x;
+                const y = e.clientY - wallRect.top - this.dragOffset.y;
+
+                const snappedPos = this.getSnappedPosition(x, y, this.selectedArt);
+
+                this.selectedArt.style.left = snappedPos.x + 'px';
+                this.selectedArt.style.top = snappedPos.y + 'px';
+
+                this.showAlignmentGuides(snappedPos.guides);
+            }
+
+            handleDragEnd() {
+                this.isDragging = false;
+                this.hideAlignmentGuides();
+                document.removeEventListener('mousemove', this.handleDragMove.bind(this));
+                document.removeEventListener('mouseup', this.handleDragEnd.bind(this));
+            }
+
+            startResizing(e, artElement) {
+                this.isResizing = true;
+                const startX = e.clientX;
+                const startY = e.clientY;
+                const startWidth = artElement.offsetWidth;
+                const startHeight = artElement.offsetHeight;
+
+                const handleResize = (e) => {
+                    if (!this.isResizing) return;
+
+                    const deltaX = e.clientX - startX;
+                    const deltaY = e.clientY - startY;
+                    const delta = Math.max(deltaX, deltaY);
+
+                    const newSize = Math.max(50, Math.min(400, startWidth + delta));
+                    artElement.style.width = newSize + 'px';
+                    artElement.style.height = newSize + 'px';
+                };
+
+                const stopResize = () => {
+                    this.isResizing = false;
+                    document.removeEventListener('mousemove', handleResize);
+                    document.removeEventListener('mouseup', stopResize);
+                };
+
+                document.addEventListener('mousemove', handleResize);
+                document.addEventListener('mouseup', stopResize);
+            }
+
+            startRotating(e, artElement) {
+                this.isRotating = true;
+                const rect = artElement.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                const handleRotate = (e) => {
+                    if (!this.isRotating) return;
+
+                    const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+                    const degrees = (angle * 180 / Math.PI + 90) % 360;
+
+                    artElement.style.transform = `rotate(${degrees}deg)`;
+                    artElement.dataset.rotation = degrees;
+                };
+
+                const stopRotate = () => {
+                    this.isRotating = false;
+                    document.removeEventListener('mousemove', handleRotate);
+                    document.removeEventListener('mouseup', stopRotate);
+                };
+
+                document.addEventListener('mousemove', handleRotate);
+                document.addEventListener('mouseup', stopRotate);
+            }
+
+            deleteArt(artElement) {
+                artElement.remove();
+                this.placedArt = this.placedArt.filter(art => art !== artElement);
+                this.selectedArt = null;
+            }
+
+            setupWallInteraction() {
+                this.wall.addEventListener('click', (e) => {
+                    if (e.target === this.wall) {
+                        this.deselectAll();
+                    }
+                });
+
+                this.wall.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('placed-art')) {
+                        this.selectArt(e.target);
+                        this.startDragExisting(e, e.target);
+                    }
+                });
+            }
+
+            startDragExisting(e, artElement) {
+                const rect = artElement.getBoundingClientRect();
+                const wallRect = this.wall.getBoundingClientRect();
+
+                this.isDragging = true;
+                this.dragOffset = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+
+                document.addEventListener('mousemove', this.handleDragMove.bind(this));
+                document.addEventListener('mouseup', this.handleDragEnd.bind(this));
+            }
+
+            selectArt(artElement) {
+                this.deselectAll();
+                this.selectedArt = artElement;
+                artElement.classList.add('selected');
+            }
+
+            deselectAll() {
+                this.placedArt.forEach(art => {
+                    art.classList.remove('selected');
+                });
+                this.selectedArt = null;
+            }
+
+            getSnappedPosition(x, y, element) {
+                const snapDistance = 20;
+                const guides = [];
+                let snappedX = x;
+                let snappedY = y;
+
+                const wallRect = this.wall.getBoundingClientRect();
+                const elementRect = {
+                    width: element.offsetWidth,
+                    height: element.offsetHeight
+                };
+
+                // Snap to wall edges
+                if (Math.abs(x) < snapDistance) {
+                    snappedX = 0;
+                    guides.push({ type: 'vertical', position: 0 });
+                }
+                if (Math.abs(x + elementRect.width - wallRect.width) < snapDistance) {
+                    snappedX = wallRect.width - elementRect.width;
+                    guides.push({ type: 'vertical', position: wallRect.width });
+                }
+                if (Math.abs(y) < snapDistance) {
+                    snappedY = 0;
+                    guides.push({ type: 'horizontal', position: 0 });
+                }
+                if (Math.abs(y + elementRect.height - wallRect.height) < snapDistance) {
+                    snappedY = wallRect.height - elementRect.height;
+                    guides.push({ type: 'horizontal', position: wallRect.height });
+                }
+
+                // Snap to center
+                const centerX = (wallRect.width - elementRect.width) / 2;
+                const centerY = (wallRect.height - elementRect.height) / 2;
+
+                if (Math.abs(x - centerX) < snapDistance) {
+                    snappedX = centerX;
+                    guides.push({ type: 'vertical', position: wallRect.width / 2 });
+                }
+                if (Math.abs(y - centerY) < snapDistance) {
+                    snappedY = centerY;
+                    guides.push({ type: 'horizontal', position: wallRect.height / 2 });
+                }
+
+                // Snap to other elements
+                this.placedArt.forEach(otherArt => {
+                    if (otherArt === element) return;
+
+                    const otherRect = otherArt.getBoundingClientRect();
+                    const otherWallX = otherRect.left - wallRect.left;
+                    const otherWallY = otherRect.top - wallRect.top;
+
+                    // Vertical alignment
+                    if (Math.abs(x - otherWallX) < snapDistance) {
+                        snappedX = otherWallX;
+                        guides.push({ type: 'vertical', position: otherWallX });
+                    }
+
+                    // Horizontal alignment
+                    if (Math.abs(y - otherWallY) < snapDistance) {
+                        snappedY = otherWallY;
+                        guides.push({ type: 'horizontal', position: otherWallY });
+                    }
+                });
+
+                return { x: snappedX, y: snappedY, guides };
+            }
+
+            showAlignmentGuides(guides) {
+                this.hideAlignmentGuides();
+
+                guides.forEach(guide => {
+                    const guideElement = document.createElement('div');
+                    guideElement.className = `alignment-guide ${guide.type}`;
+
+                    if (guide.type === 'vertical') {
+                        guideElement.style.left = guide.position + 'px';
+                        guideElement.style.top = '0';
+                    } else {
+                        guideElement.style.top = guide.position + 'px';
+                        guideElement.style.left = '0';
+                    }
+
+                    this.wall.appendChild(guideElement);
+                    this.alignmentGuides.push(guideElement);
+                });
+            }
+
+            hideAlignmentGuides() {
+                this.alignmentGuides.forEach(guide => {
+                    guide.remove();
+                });
+                this.alignmentGuides = [];
+            }
+
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Delete' && this.selectedArt) {
+                        this.deleteArt(this.selectedArt);
+                    }
+                    if (e.key === 'Escape') {
+                        this.deselectAll();
+                    }
+                });
+            }
+        }
+
+        // Initialize the gallery wall designer when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new GalleryWallDesigner();
+        });
+    </script>
+</body>
+</html>
